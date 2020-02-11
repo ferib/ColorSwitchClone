@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using System;
 
 public class Player : MonoBehaviour
@@ -7,16 +9,23 @@ public class Player : MonoBehaviour
     public float JumpForce = 10.0f;
     public Rigidbody2D rb;
     public SpriteRenderer sr;
+    public Text ScreenText;
+    public Camera FollowCamera;
     public Color colorCyan;
     public Color colorYellow;
     public Color colorPink;
     public Color colorMagenta;
+    
 
     private ObjColor PlayerColor;
     private Color[] colorArray;
+    private bool PlayerAlive = false;
+    private bool PlayerReady = true;
+    private DateTime lastSwitch = DateTime.MinValue;
 
     void Start()
     {
+        rb.simulated = false; //Player won't start falling yet
         colorArray = new Color[] { colorCyan, colorYellow, colorPink, colorMagenta };
         SetRandomColor();
     }
@@ -24,10 +33,25 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+
+        //Update Player input
+        if(PlayerReady)
         {
-            rb.velocity = Vector2.up * JumpForce;
+            //handle Player Controls
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+            {
+                rb.velocity = Vector2.up * JumpForce;
+                rb.simulated = true;
+                PlayerAlive = true;
+            }
         }
+
+        //Kill player when 
+        if (transform.position.y +5 < FollowCamera.transform.position.y && PlayerAlive)
+            Reset();
+
+        //Update Screen text
+        ScreenText.enabled = !PlayerAlive;
     }
 
     void OnTriggerEnter2D (Collider2D col)
@@ -38,18 +62,27 @@ public class Player : MonoBehaviour
             Debug.Log("nailed it");
         }
         else
-            Debug.Log("ded");
+        {
+            if(lastSwitch.AddMilliseconds(500) < DateTime.Now)
+                Reset();
+            lastSwitch = DateTime.Now;
+        }
     }
 
     void SetRandomColor()
     {
         ObjColor newColor = ObjColor.None; 
         while(newColor == ObjColor.None || newColor == PlayerColor) //its not exactly "random" since color should always change (noticable change ;) )
-            newColor = (ObjColor)UnityEngine.Random.Range(0, 3); 
+            newColor = (ObjColor)UnityEngine.Random.Range(0, 4); 
 
         PlayerColor = newColor;
         sr.color = colorArray[(int)PlayerColor];
-        Debug.Log("Color set to " + colorArray[(int)PlayerColor].ToString());
+    }
+
+    void Reset()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); //Reload
+        PlayerAlive = false;
     }
 
     //i prefer this :p
