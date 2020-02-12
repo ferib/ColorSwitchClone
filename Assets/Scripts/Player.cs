@@ -63,7 +63,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            //if(lastSwitch.AddMilliseconds(500) < DateTime.Now)
+            //if (lastSwitch.AddMilliseconds(500) < DateTime.Now)
             //    Reset();
             //lastSwitch = DateTime.Now;
         }

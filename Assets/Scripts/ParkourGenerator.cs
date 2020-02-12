@@ -9,8 +9,10 @@ public class ParkourGenerator : MonoBehaviour
     public GameObject PrefabCircle;
 
     private List<GameObject> PrefabCircles;
-    private float CirclesPerMeter = 8.0f; //screen is 10.0f
+    private float CirclesPerMeter = 4.0f; //screen height is 10.0f
     private int LastCircleCount = 0;
+    private float AddOffset = 2.75f;
+    private float CircleSize = 3.3f;
 
     void Start()
     {
@@ -20,20 +22,30 @@ public class ParkourGenerator : MonoBehaviour
 
     void Update()
     {
-        //Subtract 12.0f or main stuff
-        int CicleCount = (int)((MainCamera.transform.position.y + 5.0f ) / CirclesPerMeter);
-        Debug.Log("Cicles needed: " + ((MainCamera.transform.position.y + 5.0f) / CirclesPerMeter));
+        int CicleCount = (int)((MainCamera.transform.position.y - AddOffset + 10.0f) / CirclesPerMeter);
+        //Subtract AddOffset to correct the Camera Y, Add 10.0f to make circles spawn out of camera range
+        
+        //Debug.Log("Cicles needed: " + ((MainCamera.transform.position.y ) / CirclesPerMeter));
 
         if(CicleCount > PrefabCircles.Count)
         {
             //Add circle
             GameObject pCircle = Instantiate(PrefabCircle) as GameObject;
-            pCircle.transform.position = new Vector3(MainCamera.transform.position.x, MainCamera.transform.position.y + 10.0f, 0);
-
+            
             //random scale
-            float scaleFactor = Random.Range(100, 150) / 100.0f;
+            float scaleFactor = Random.Range(115, 190) / 100.0f;
             pCircle.transform.localScale = new Vector3(scaleFactor, scaleFactor, 0f);
 
+            if (CicleCount == 1)
+                AddOffset += 1.15f * CircleSize * 0.5f; //Use the radios of the first circle to do math
+            else
+                AddOffset += scaleFactor* CircleSize *0.5f; //add current circle's radius for current math
+
+            pCircle.transform.position = new Vector3(MainCamera.transform.position.x, (CicleCount * CirclesPerMeter) + 2.75f + AddOffset, 0); //2.75f is the Y location of the first circle
+            AddOffset += scaleFactor * CircleSize * 0.5f; //add current circle's radius for next circle's math
+            
+
+            //Add to list so it can be destroyed lateron
             pCircle.SetActive(true);
             PrefabCircles.Add(pCircle);
         }
@@ -42,7 +54,7 @@ public class ParkourGenerator : MonoBehaviour
         if (PrefabCircles.Count > LastCircleCount)
         {
             LastCircleCount++; //inc by 1
-            if (PrefabCircles.Count >= 3) //Remove circles when no longer needed
+            if (PrefabCircles.Count >= 4) //Remove circles when no longer needed
                 Destroy(PrefabCircles[PrefabCircles.Count - 4].gameObject);
         }
     }
