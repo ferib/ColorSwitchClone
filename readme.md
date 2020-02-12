@@ -1,5 +1,5 @@
 # ColorSwitch Clone
-![circles](https://github.com/ferib/ColorSwitchClone/raw/master/img/cldbdosomestuff.png?raw=true)
+![circles](https://github.com/ferib/ColorSwitchClone/raw/master/img/circles.png?raw=true)
 This project was made using Unity!
 
 # The Game
